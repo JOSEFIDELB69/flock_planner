@@ -1,0 +1,46 @@
+# Entorno completo local con PostgreSQL. Uso:
+#   cp .env.example .env   (definí POSTGRES_PASSWORD con una clave propia y SECRETS_ENCRYPTION_KEY si vas a usar JIRA)
+#   docker compose up --build
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: pm_agent
+      POSTGRES_USER: pm_agent
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Definí POSTGRES_PASSWORD en .env (no hay contraseña por defecto)}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pm_agent -d pm_agent"]
+      interval: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg://pm_agent:${POSTGRES_PASSWORD:?Definí POSTGRES_PASSWORD en .env}@db:5432/pm_agent
+      CORS_ORIGINS: http://localhost:3000
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        API_BASE_URL: http://backend:8000
+        NEXT_PUBLIC_APP_ENV: docker
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:

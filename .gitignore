@@ -1,0 +1,31 @@
+# Secretos y entornos locales
+.env
+backend/.env
+frontend/.env*.local
+
+# Python
+backend/.venv/
+__pycache__/
+*.pyc
+*.db
+*.db-journal
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/next-env.d.ts
+frontend/tsconfig.tsbuildinfo
+frontend/test-results/
+frontend/playwright-report/
+
+# Sistema
+.DS_Store
+Thumbs.db
+backend/.pytest_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Configuración local de herramientas
+.claude/
+*.log
